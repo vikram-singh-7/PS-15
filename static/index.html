@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisionPath AI — Spatial Campus Navigation Co-Pilot</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-group">
+      <div class="logo-badge">
+        <img src="icons/shield-check.svg" class="icon icon-sm icon-white" alt="" />
+        <span>PS-15 · ADVANCED AI</span>
+      </div>
+      <div class="title-wrap">
+        <h1>VisionPath AI</h1>
+        <p>Spatial Perception & Binaural Guidance System</p>
+      </div>
+    </div>
+    <div class="system-status-pills">
+      <div class="pill" id="route-status-pill">
+        <span class="dot"></span> Standard Accessible Path
+      </div>
+      <div class="pill">
+        <span class="dot" style="background:#06b6d4; box-shadow:0 0 10px #06b6d4;"></span> 3D Audio Panner Ready
+      </div>
+    </div>
+  </header>
+
+  <!-- Segmented Navigation Tabs (Modern Floating Pill) -->
+  <div class="tab-nav-container">
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="tab-student">
+        <img src="icons/camera.svg" class="icon icon-sm icon-white" alt="" />
+        <span>Spatial Vision HUD</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-map">
+        <img src="icons/map.svg" class="icon icon-sm icon-white" alt="" />
+        <span>Campus Dynamic Map</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-volunteer">
+        <img src="icons/hand-helping.svg" class="icon icon-sm icon-white" alt="" />
+        <span>Volunteer Dispatch Center</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+
+    <!-- TAB 1: Student HUD -->
+    <div id="tab-student" class="tab-content active">
+
+      <!-- Pitch Scenario Segmented Chips -->
+      <div class="scenario-bar">
+        <div class="scenario-label">
+          <img src="icons/play.svg" class="icon icon-sm icon-cyan" alt="" /> Scenarios:
+        </div>
+        <button class="chip-scenario active" data-scenario="clear">🟢 Clear Corridor</button>
+        <button class="chip-scenario" data-scenario="wet_floor">⚠️ Wet Floor Sign (Veer)</button>
+        <button class="chip-scenario" data-scenario="blocked">🚧 Maintenance Block (Stop)</button>
+        <button class="chip-scenario" data-scenario="stairs">🪜 Staircase Caution</button>
+        <button class="chip-scenario" data-scenario="low_light">🌙 Low-Light Safety Trigger</button>
+        <button class="chip-scenario" data-scenario="camera" style="margin-left:auto; border-color:var(--accent-cyan); color:var(--accent-cyan);">
+          <img src="icons/camera.svg" class="icon icon-sm icon-cyan" alt="" /> Switch to Live Camera
+        </button>
+      </div>
+
+      <div class="dual-pane">
+        <!-- Left Pane: Spatial Vision Viewport -->
+        <div class="card">
+          <div class="card-title">
+            <span style="display:flex; align-items:center; gap:8px;">
+              <img src="icons/locate-fixed.svg" class="icon icon-cyan" alt="" />
+              Spatial Corridor Perception Feed
+            </span>
+            <span id="confidence-value" class="pill" style="font-family:var(--font-mono); color:var(--accent-emerald); border-color:rgba(16, 185, 129, 0.3);">
+              94% CONFIDENCE
+            </span>
+          </div>
+
+          <div class="viewport-container">
+            <video id="camera-video" playsinline muted style="display:none;"></video>
+            <canvas id="demo-canvas" width="640" height="360"></canvas>
+
+            <!-- 3-Sector Grid Overlay -->
+            <div class="sector-overlay">
+              <div id="sector-left" class="sector-zone clear-corridor">
+                <span class="sector-label">LEFT SECTOR</span>
+                <span id="metric-left" class="sector-metric">CLEAR > 3m</span>
+              </div>
+              <div id="sector-center" class="sector-zone clear-corridor">
+                <span class="sector-label">CENTER TRAVERSABLE</span>
+                <span id="metric-center" class="sector-metric">CLEAR > 3m</span>
+              </div>
+              <div id="sector-right" class="sector-zone clear-corridor">
+                <span class="sector-label">RIGHT SECTOR</span>
+                <span id="metric-right" class="sector-metric">CLEAR > 3m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Central Imperative Action Banner -->
+          <div id="action-banner" class="action-banner">
+            <div id="action-text" class="action-text">PROCEED FORWARD</div>
+            <div id="voice-subtitle" class="voice-subtitle">"Path is clear ahead."</div>
+          </div>
+
+          <!-- Safety Guardrail Banner -->
+          <div id="safety-alert-badge" class="hazard-badge" style="display:none; margin-top:14px; width:100%; text-align:center;">
+            ⚠️ Safety Alert Active
+          </div>
+
+          <!-- Controls Bar (Distinct Button Styles) -->
+          <div class="controls-row">
+            <!-- Style 3: Pill Toggles -->
+            <button id="toggle-audio-btn" class="btn-toggle-pill active">
+              <img src="icons/volume-2.svg" class="icon icon-sm icon-cyan" alt="" />
+              <span>Spatial Audio ON</span>
+            </button>
+            <button id="toggle-voice-btn" class="btn-toggle-pill active">
+              <img src="icons/headphones.svg" class="icon icon-sm icon-white" alt="" />
+              <span>Voice Guide ON</span>
+            </button>
+
+            <!-- Style 4: Glowing Mic Orb -->
+            <button id="mic-btn" class="btn-mic-orb">
+              <img src="icons/mic.svg" class="icon icon-sm" alt="" />
+              <span>Voice Commands: OFF</span>
+            </button>
+
+            <!-- Style 2: Emergency SOS Beacon -->
+            <button id="sos-btn" class="btn-beacon-sos" style="margin-left:auto;">
+              <img src="icons/triangle-alert.svg" class="icon icon-sm icon-white" alt="" />
+              <span>EMERGENCY SOS</span>
+            </button>
+          </div>
+
+          <div id="voice-recognized-banner" style="display:none; font-size:0.85rem; color:#d8b4fe; margin-top:12px; padding:8px 14px; background:rgba(168,85,247,0.12); border-radius:var(--radius-sm); border:1px solid rgba(168,85,247,0.3);">
+            🎙️ <strong>Voice Recognized:</strong> <span id="voice-recognized-text" style="font-style:italic;">"..."</span>
+          </div>
+        </div>
+
+        <!-- Right Pane: Spatial Audio & Telemetry -->
+        <div class="card">
+          <div class="card-title">
+            <span style="display:flex; align-items:center; gap:8px;">
+              <img src="icons/headphones.svg" class="icon icon-cyan" alt="" />
+              Binaural 3D Audio Visualizer
+            </span>
+            <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">WebAudio 32-bit</span>
+          </div>
+
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;">
+            Stereo sound pulses pan naturally into the clear ear to guide movement without verbal fatigue:
+          </p>
+
+          <!-- Dynamic Audio Equalizer Waves -->
+          <div class="audio-radar-wrap">
+            <div class="ear-indicator">
+              <span class="ear-label">Left Ear</span>
+              <div class="sound-bars" id="left-sound-bars">
+                <div class="sound-bar" style="height: 12px;"></div>
+                <div class="sound-bar" style="height: 18px;"></div>
+                <div class="sound-bar" style="height: 8px;"></div>
+                <div class="sound-bar" style="height: 14px;"></div>
+                <div class="sound-bar" style="height: 6px;"></div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+              <span style="font-size:0.7rem; font-weight:700; color:var(--text-subtle); letter-spacing:1px; text-transform:uppercase;">Stereo Vector</span>
+              <span style="font-size:1.1rem; color:var(--accent-cyan); font-weight:800;">↔️</span>
+            </div>
+
+            <div class="ear-indicator">
+              <span class="ear-label">Right Ear</span>
+              <div class="sound-bars" id="right-sound-bars">
+                <div class="sound-bar" style="height: 6px;"></div>
+                <div class="sound-bar" style="height: 14px;"></div>
+                <div class="sound-bar" style="height: 8px;"></div>
+                <div class="sound-bar" style="height: 18px;"></div>
+                <div class="sound-bar" style="height: 12px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Metrics -->
+          <div class="telemetry-grid">
+            <div class="telemetry-box">
+              <div class="telemetry-label">Active Navigation Target</div>
+              <div class="telemetry-val" style="color:var(--accent-purple); font-size:1rem;">CS Lab 102 (AI Center)</div>
+            </div>
+            <div class="telemetry-box">
+              <div class="telemetry-label">Traversable Corridor</div>
+              <div class="telemetry-val" style="color:var(--accent-emerald); font-size:1rem;">1.8m Safe Width</div>
+            </div>
+            <div class="telemetry-box">
+              <div class="telemetry-label">Estimated Walking Distance</div>
+              <div class="telemetry-val" id="route-dist-val">46.0 meters</div>
+            </div>
+            <div class="telemetry-box">
+              <div class="telemetry-label">Tactile Paving Guidance</div>
+              <div class="telemetry-val" style="color:var(--accent-amber); font-size:1rem;">🟡 Surface Aligned</div>
+            </div>
+          </div>
+
+          <!-- Accessibility Assist Note -->
+          <div style="background:rgba(9, 13, 24, 0.7); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; margin-top:16px;">
+            <p style="font-size:0.82rem; color:#cbd5e1; font-weight:700; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+              <img src="icons/settings-2.svg" class="icon icon-sm icon-cyan" alt="" /> Blind User Key Shortcuts:
+            </p>
+            <ul style="font-size:0.78rem; color:var(--text-muted); margin-left:18px; line-height:1.7;">
+              <li><kbd style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-family:var(--font-mono);">[Spacebar]</kbd> Repeat last guidance voice prompt</li>
+              <li><kbd style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-family:var(--font-mono);">[Key 'S']</kbd> Trigger emergency volunteer SOS signal</li>
+              <li><kbd style="background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; font-family:var(--font-mono);">[Key 'M']</kbd> Mute / Unmute binaural audio pings</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Campus Map & Dynamic Rerouting -->
+    <div id="tab-map" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span style="display:flex; align-items:center; gap:8px;">
+            <img src="icons/route.svg" class="icon icon-cyan" alt="" />
+            Interactive Campus Accessible Route Planner (Dijkstra Graph)
+          </span>
+          <div style="display:flex; gap:10px;">
+            <!-- Style 6: Obsidian Buttons -->
+            <button id="btn-trigger-hazard" class="btn-obsidian" style="border-color:rgba(245,158,11,0.5); color:var(--accent-amber);">
+              <img src="icons/triangle-alert.svg" class="icon icon-sm icon-amber" alt="" />
+              <span>Simulate Hazard on Corridor A</span>
+            </button>
+            <button id="btn-clear-hazards" class="btn-obsidian">
+              <img src="icons/rotate-ccw.svg" class="icon icon-sm icon-white" alt="" />
+              <span>Clear Campus Hazards</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="map-viewport">
+          <svg id="campus-svg" viewBox="0 0 900 680"></svg>
+        </div>
+
+        <div style="margin-top:18px; background:rgba(9, 13, 24, 0.7); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:16px;">
+          <strong style="color:var(--accent-cyan); font-size:0.88rem; display:flex; align-items:center; gap:6px;">
+            <img src="icons/route.svg" class="icon icon-sm icon-cyan" alt="" /> Current Accessible Route Nodes:
+          </strong>
+          <p id="route-nodes-val" style="font-family:var(--font-mono); font-size:0.9rem; color:#f1f5f9; margin-top:6px;">
+            Loading route nodes...
+          </p>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;">
+            💡 <em>When the vision system spots a temporary hazard (like wet floor or construction), it automatically informs the campus graph and dynamically reroutes students via accessible alternate paths (e.g. Ramp Corridor B).</em>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Volunteer Ops & Responsible AI Gate -->
+    <div id="tab-volunteer" class="tab-content">
+      <div class="dual-pane">
+        <!-- Volunteer Dispatch -->
+        <div class="card">
+          <div class="card-title">
+            <span style="display:flex; align-items:center; gap:8px;">
+              <img src="icons/hand-helping.svg" class="icon icon-cyan" alt="" />
+              Volunteer Assistance Queue (Human-in-the-Loop)
+            </span>
+            <span class="pill"><span class="dot"></span> Live Telemetry</span>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">
+            When an uncertain scene occurs or a student presses SOS, dispatchers receive instant coordinates and can acknowledge or resolve incidents:
+          </p>
+          <div id="volunteer-alerts-list">
+            <!-- Populated via JavaScript -->
+          </div>
+        </div>
+
+        <!-- Responsible AI & Safety Safeguards (Catalog Requirements) -->
+        <div class="card">
+          <div class="card-title">
+            <span style="display:flex; align-items:center; gap:8px;">
+              <img src="icons/shield-check.svg" class="icon icon-green" alt="" />
+              Responsible AI & Safety Safeguards
+            </span>
+            <span class="pill" style="border-color:rgba(16, 185, 129, 0.4); color:var(--accent-emerald);">Verified Compliant</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="background:rgba(9, 13, 24, 0.7); padding:14px; border-radius:var(--radius-md); border-left:4px solid var(--accent-emerald); border-top:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);">
+              <strong style="font-size:0.88rem; color:#fff;">1. Real-Time Confidence Gate</strong>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">
+                If ambient lighting drops below 25 lux or vision uncertainty is high, the model refuses to guess blindly and restricts walking pace while activating volunteer fallback.
+              </p>
+            </div>
+            <div style="background:rgba(9, 13, 24, 0.7); padding:14px; border-radius:var(--radius-md); border-left:4px solid var(--accent-cyan); border-top:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);">
+              <strong style="font-size:0.88rem; color:#fff;">2. Non-Invasive Spatial Audio Ergonomics</strong>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">
+                Avoids speech fatigue. Uses subtle 3D binaural stereo sound pulses for directional corridor clearance, speaking only when an imperative obstacle intervention is needed.
+              </p>
+            </div>
+            <div style="background:rgba(9, 13, 24, 0.7); padding:14px; border-radius:var(--radius-md); border-left:4px solid var(--accent-purple); border-top:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);">
+              <strong style="font-size:0.88rem; color:#fff;">3. Privacy-Preserving On-Device Pipeline</strong>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">
+                Bystander faces are blurred and no raw continuous video streams are stored to disk, respecting FERPA and campus privacy policies.
+              </p>
+            </div>
+            <div style="background:rgba(9, 13, 24, 0.7); padding:14px; border-radius:var(--radius-md); border-left:4px solid var(--accent-amber); border-top:1px solid var(--border-subtle); border-right:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);">
+              <strong style="font-size:0.88rem; color:#fff;">4. Human Verification for High-Risk Decisions</strong>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:3px;">
+                Critical campus hazard closures and emergency incidents are verified by authorized campus staff before campus-wide propagation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/audio_engine.js"></script>
+  <script src="js/vision_processor.js"></script>
+  <script src="js/campus_map.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

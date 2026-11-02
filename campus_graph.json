@@ -1,0 +1,28 @@
+{
+  "nodes": [
+    { "id": "N1", "name": "Campus Main Entrance", "x": 100, "y": 420, "floor": "Ground", "tactile_paving": true },
+    { "id": "N2", "name": "Central Plaza Walkway", "x": 260, "y": 420, "floor": "Ground", "tactile_paving": true },
+    { "id": "N3", "name": "Academic Block A Foyer", "x": 420, "y": 420, "floor": "Ground", "tactile_paving": true },
+    { "id": "N4", "name": "Corridor A (To Science Labs)", "x": 420, "y": 270, "floor": "Ground", "tactile_paving": false },
+    { "id": "N5", "name": "CS Lab 102 & AI Center", "x": 580, "y": 270, "floor": "Ground", "tactile_paving": true },
+    { "id": "N6", "name": "Central Atrium & Garden Walk", "x": 420, "y": 560, "floor": "Ground", "tactile_paving": true },
+    { "id": "N7", "name": "Library Main Entrance", "x": 620, "y": 560, "floor": "Ground", "tactile_paving": true },
+    { "id": "N8", "name": "Student Cafeteria & Food Court", "x": 780, "y": 560, "floor": "Ground", "tactile_paving": false },
+    { "id": "N9", "name": "Accessible Ramp Corridor B (Alternative)", "x": 580, "y": 420, "floor": "Ground", "tactile_paving": true },
+    { "id": "N10", "name": "Seminar Hall 2B (Auditorium)", "x": 780, "y": 420, "floor": "Ground", "tactile_paving": true }
+  ],
+  "edges": [
+    { "from": "N1", "to": "N2", "distance_m": 25, "type": "outdoor_paved", "accessible": true },
+    { "from": "N2", "to": "N3", "distance_m": 25, "type": "outdoor_paved", "accessible": true },
+    { "from": "N3", "to": "N4", "distance_m": 22, "type": "indoor_corridor", "accessible": true },
+    { "from": "N4", "to": "N5", "distance_m": 24, "type": "indoor_corridor", "accessible": true },
+    { "from": "N3", "to": "N9", "distance_m": 24, "type": "indoor_wide_corridor", "accessible": true },
+    { "from": "N9", "to": "N10", "distance_m": 30, "type": "indoor_wide_corridor", "accessible": true },
+    { "from": "N3", "to": "N6", "distance_m": 22, "type": "covered_walkway", "accessible": true },
+    { "from": "N6", "to": "N7", "distance_m": 30, "type": "covered_walkway", "accessible": true },
+    { "from": "N7", "to": "N8", "distance_m": 26, "type": "covered_walkway", "accessible": true },
+    { "from": "N5", "to": "N9", "distance_m": 22, "type": "indoor_ramp", "accessible": true },
+    { "from": "N7", "to": "N10", "distance_m": 22, "type": "indoor_ramp", "accessible": true }
+  ]
+}
+
